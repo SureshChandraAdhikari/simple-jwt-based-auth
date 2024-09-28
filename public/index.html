@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Container for form sections */
+        div {
+            background-color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px;
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Heading styles */
+        h2 {
+            margin-bottom: 15px;
+            font-size: 24px;
+            color: #5c5e67;
+            text-align: center;
+        }
+
+        /* Input fields styling */
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        /* Button styling */
+        button {
+            width: 100%;
+            padding: 12px 20px;
+            background-color: #6200ea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #3700b3;
+            transform: translateY(-3px);
+        }
+
+        /* Get user info and logout button styling */
+        #information, button {
+            margin-top: 15px;
+        }
+
+        /* Additional responsive styling */
+        @media (max-width: 400px) {
+            div {
+                width: 90%;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.7/axios.min.js"></script>
+<script>
+    async function signup() {
+        const username = document.getElementById("signup-username").value;
+        const password = document.getElementById("signup-password").value;
+
+        try {
+            const response = await axios.post("http://localhost:3000/signup", {
+                username: username,
+                password: password
+            });
+            alert("Signed up successfully");
+        } catch (error) {
+            console.error(error);
+            alert("Error during signup");
+        }
+    }
+
+    async function signin() {
+        const username = document.getElementById("signin-username").value;
+        const password = document.getElementById("signin-password").value;
+
+        try {
+            const response = await axios.post("http://localhost:3000/signin", {
+                username: username,
+                password: password
+            });
+
+            localStorage.setItem("token", response.data.token);
+
+            alert("Signed in successfully");
+        } catch (error) {
+            console.error(error);
+            alert("Error during signin");
+        }
+    }
+
+    async function logout() {
+        localStorage.removeItem("token");
+        alert("Logged out successfully");
+    }
+
+    async function getUserInformation() {
+        const token = localStorage.getItem("token");
+
+        if (token) {
+            try {
+                const response = await axios.get("http://localhost:3000/me", {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                document.getElementById("information").innerHTML = response.data.username;
+            } catch (error) {
+                console.error(error);
+                alert("Error fetching user information");
+            }
+        } else {
+            alert("No token found. Please sign in first.");
+        }
+    }
+</script>
+<body>
+<div>
+    <h2>Signup</h2>
+    <input type="text" id="signup-username" placeholder="Username">
+    <input type="password" id="signup-password" placeholder="Password">
+    <button onclick="signup()">Submit</button>
+</div>
+<div>
+    <h2>Signin</h2>
+    <input type="text" id="signin-username" placeholder="Username">
+    <input type="password" id="signin-password" placeholder="Password">
+    <button onclick="signin()">Submit</button>
+</div>
+
+<div>
+    <h2>User information</h2>
+    <div id="information"></div>
+    <button onclick="getUserInformation()">Get User Info</button>
+</div>
+<div>
+    <button onclick="logout()">Logout</button>
+</div>
+
+</body>
+</html>
